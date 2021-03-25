@@ -1,0 +1,86 @@
+﻿
+
+@page "/Authors"
+@using AuthorWebClient.Data
+@using AuthorWebClient.Models
+@inject IAuthorsService AuthorsService
+<h3>Authors</h3>
+
+
+<p>
+    Filter by first name: <input type="text" @oninput="@((arg) => FilterByFirstName(arg))" style="width:50px" />
+</p>
+
+@if (authorsToShow == null)
+{
+    <p>
+        <em>Loading...</em>
+    </p>
+}
+else if (!authorsToShow.Any())
+{
+    <p>
+        <em>No adults items exist. Please add some.</em>
+    </p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>First Name</th>
+                <th>Last name</th>
+               
+
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in authorsToShow)
+            {
+                <tr>
+                    <td>@item.Id</td>
+                    <td>@item.FirstName</td>
+                    <td>@item.LastName</td>
+                    
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+@code {
+    private IList<Author> authorsToShow;
+    private IList<Author> allAuthors;
+    //filterByFirstName
+    private string? filterByFirstName;
+    //private int?filterBy?
+
+
+    private void FilterByFirstName(ChangeEventArgs changeEventArgs)
+    {
+        filterByFirstName = null;
+        try
+        {
+            filterByFirstName = changeEventArgs.Value.ToString();
+            filterByFirstName = filterByFirstName == "" ? null : filterByFirstName;
+        }
+        catch (Exception e)
+        {
+            filterByFirstName = null;
+        }
+        ExecuteFilter();
+    }
+
+    private void ExecuteFilter()
+    {
+        authorsToShow = allAuthors.Where(t => (filterByFirstName != null && t.FirstName.Contains(filterByFirstName))).ToList();
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        allAuthors = await AuthorsService.GetAuthorsAsync();
+        authorsToShow = allAuthors;
+    }
+
+   
+
+}

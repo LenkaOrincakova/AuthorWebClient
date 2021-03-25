@@ -1,0 +1,39 @@
+﻿@page "/CreateAuthor"
+@using AuthorWebClient.Models
+@using AuthorWebClient.Data
+@inject IAuthorsService AuthorsService
+@inject NavigationManager NavigationManager
+
+
+<h3>CreateAuthor</h3>
+
+
+<EditForm Model="@newAuthorItem" OnValidSubmit="@AddNewAuthorAsync">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="form-group">
+        User Id:<br />
+        <InputNumber @bind-Value="newAuthorItem.Id" />
+    </div>
+    <div class="form-group">
+        First Name:<br />
+        <InputTextArea rows="4" @bind-Value="newAuthorItem.FirstName" />
+    </div>
+    <div class="form-group">
+        Last Name:<br />
+        <InputTextArea rows="4" @bind-Value="newAuthorItem.LastName" />
+    </div>
+    <p class="actions">
+        <button class="btn btn-outline-dark" type="submit">Create</button>
+    </p>
+</EditForm>
+
+@code {
+    private Author newAuthorItem = new Author();
+
+    private async Task AddNewAuthorAsync()
+    {
+        await AuthorsService.AddAuthorAsync(newAuthorItem);
+        //NavigationManager.NavigateTo("/Authors");
+    }
+}

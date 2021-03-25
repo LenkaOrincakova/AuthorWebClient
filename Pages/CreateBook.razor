@@ -1,0 +1,42 @@
+﻿@page "/CreateBook"
+@using AuthorWebClient.Models
+@using AuthorWebClient.Data
+@inject IAuthorsService AuthorsService
+@inject NavigationManager NavigationManager
+
+<h3>CreateBook</h3>
+
+
+<EditForm Model="@newBookItem" OnValidSubmit="@AddNewBookAsync">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="form-group">
+        Isbn : <br />
+        <InputNumber @bind-Value="newBookItem.ISBN" />
+    </div>
+    <div class="form-group">
+        Title:<br />
+        <InputTextArea rows="4" @bind-Value="newBookItem.Title" />
+    </div>
+    <div class="form-group">
+        Year of publication:<br />
+        <InputNumber @bind-Value="newBookItem.PublicationYear" />
+    </div>
+    <div class="form-group">
+        Number of pages:<br />
+        <InputNumber @bind-Value="newBookItem.NumOfPages" />
+    </div>
+    <p class="actions">
+        <button class="btn btn-outline-dark" type="submit">Create</button>
+    </p>
+</EditForm>
+@code {
+    private Book newBookItem = new Book();
+
+    private async Task AddNewBookAsync()
+    {
+        await AuthorsService.AddBookAsync(newBookItem);
+        NavigationManager.NavigateTo("/Books");
+    }
+
+}

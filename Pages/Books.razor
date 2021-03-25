@@ -1,0 +1,95 @@
+﻿@page "/Books"
+@using AuthorWebClient.Data
+@using AuthorWebClient.Models
+@inject IAuthorsService AuthorsService
+
+<h3>Books</h3>
+
+
+<p>
+    Filter by title: <input type="text" @oninput="@((arg) => FilterByTitle(arg))" style="width:50px" />
+</p>
+
+@if (booksToShow == null)
+{
+    <p>
+        <em>Loading...</em>
+    </p>
+}
+else if (!booksToShow.Any())
+{
+    <p>
+        <em>No book items exist. Please add some.</em>
+    </p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ISBN</th>
+                <th>Title</th>
+                <th>Year of publication</th>
+                <th>NumberOfPages</th>
+                <th>Remove</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in booksToShow)
+            {
+            <tr>
+                <td>@item.ISBN</td>
+                <td>@item.Title</td>
+                <td>@item.PublicationYear</td>
+                <td>@item.NumOfPages</td>
+                <td>
+                    <button @onclick="@(() => RemoveBook(item.ISBN))">
+                        <i class="oi oi-trash" style="color:red" />
+                    </button>
+                </td>
+            </tr>
+            }
+        </tbody>
+    </table>
+}
+    @code {
+        private IList<Book> booksToShow;
+        private IList<Book> allBooks;
+        //filterBytitle
+        private string? filterByTitle;
+        //private int?filterBy?
+
+
+        private void FilterByTitle(ChangeEventArgs changeEventArgs)
+        {
+            filterByTitle = null;
+            try
+            {
+                filterByTitle = changeEventArgs.Value.ToString();
+                filterByTitle = filterByTitle == "" ? null : filterByTitle;
+            }
+            catch(Exception e) {
+                filterByTitle = null;
+            }
+            ExecuteFilter();
+        }
+
+        private void ExecuteFilter()
+        {
+            booksToShow = allBooks.Where(t => (filterByTitle != null && t.Title.Contains(filterByTitle))).ToList();
+        }
+        protected override async Task OnInitializedAsync()
+        {
+            allBooks = await AuthorsService.GetBooksAsync();
+            booksToShow = allBooks;
+        }
+
+        private async Task RemoveBook(int isbn)
+        {
+            Book bookToRemove = booksToShow.First(t => t.ISBN == isbn);
+            await AuthorsService.RemoveBookAsync(isbn);
+            booksToShow.Remove(bookToRemove);
+
+        }
+
+        }
